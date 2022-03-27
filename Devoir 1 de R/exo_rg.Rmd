@@ -1,0 +1,112 @@
+---
+title: "exo_reg"
+author: "KABASSINA Gnimdou Ange"
+date: '2022-03-24'
+output: html_document
+---
+```{r setup, include=TRUE, warning=FALSE}
+# 4. importation de notre dataframe crée précédement
+library(readr)
+
+dk <- read_csv2(file = "C:/Users/HP ProBook/Documents/Mes Cours ISEP2/R/Cours traitement statistique avec R/Devoir 1 de R/df.KABASSINA_KPEKPASSI.csv")#, header = TRUE, sep = ";")
+dk <- data.frame(dk)
+sapply(dk,class)
+
+#5. Statistique univarié
+# fonction qui décris une variable quantitative
+d.var.quant <- function(var){
+  var = as.numeric(var)
+  # tendances centrales
+  print('Tendance centrale')
+  print(paste("Moyene: ", mean(var)))
+  print(paste("1er quartile: ", quantile(var, probs = 1/4)))
+  print(paste("Médiane: ", median(var)))
+  print(paste("3eme quartile: ", quantile(var, probs = 3/4)))
+  print(paste("Minimum: ", min(var)))
+  print(paste("Maximum: ", max(var)))
+  # intervalle de confiance
+ # t.test(var, mu = mean(var))
+#print(paste("Intervalle de confiance moyenne",attr(,"conf.level"), sep = " "))
+  # graphiques
+  
+  barplot(var, col= "turquoise")
+  boxplot(var, col = "violetred")
+  hist(var, breaks =10, col="lavenderblush")
+}
+d.var.quali <- function(var){
+  # tendances centrales
+  summary(var)
+  
+  # graphiques
+  pie(table(var), col= "magenta")
+  barplot(table(var), col= "palevioletred")
+  boxplot(table(var), col = "pink")
+  dotchart(table(var), col= "aquamarine")
+}
+
+#Appliquons ces functions sur nos variables
+# variables quantitatives
+d.var.quant(dk$id)
+d.var.quant(dk$taille)
+d.var.quant(dk$poids)
+d.var.quant(dk$rcardiaque)
+d.var.quant(dk$age)
+# variable qualitatives 
+d.var.quali(dk$malade)
+d.var.quali(dk$pauvrete)
+d.var.quali(dk$sexe)
+d.var.quali(dk$majeur)
+d.var.quali(dk$travail)
+
+# 6. Statistique bivariée
+library(questionr)
+# pour dérire les différentes liaisons nous écrirons des fonctions et après nous les appiquerons à certaines de nos variables à titre d'exemple
+
+# a. Décrire la liaison entre deux variables qualitatives
+
+liaison.quali <- function(var1, var2){
+#Représentation graphique
+mosaicplot(table(var1,var2), las = 3, shade = TRUE)
+# test d'indépendance de Khi2
+print("Test d'indépendance de Khi2")
+chisq.test(table(var1,var2))
+}
+# exemple: liaison entre le sexe et le fait que l'individu soit majeur ou non 
+liaison.quali(dk$sexe, dk$majeur)
+
+# b. Décrire la liaison entre deux variables quantitatives
+liaison.quanti <- function(var1, var2){
+#Représentation graphique
+plot(var1, var2)
+
+# correlation de pearson
+print("Coeficient de corelation linéaire de pearson")
+print(cor(var1, var2))
+
+# Corrélation des rangs (Spearman)
+print("Coeficient de corelation des rangs de spearman")
+print(cor(var1, var2, method = "spearman"))
+
+# Régression linéaire
+print("Régression linéaire")
+reglin <- lm(var1 ~ var2)
+print(summary(reglin))
+plot(var1, var2)
+abline(reglin, col ="azure")
+}
+# exemple: liaison entre le poids et l'age
+liaison.quanti(dk$id,dk$age)
+
+liaison.quanti.quali <- function(quanti, quali){
+  # Représentation graphique
+  boxplot(quanti ~ quali)
+  
+#le test du t de Student, 
+## qui permet de tester si les moyennes des souspopulations peuvent être considérées comme différentes
+print(t.test(quanti ~ quali))
+}
+# exemple: liaison entre le poids et le sexe
+liaison.quanti.quali(dk$poids,dk$sexe)
+
+```
+
